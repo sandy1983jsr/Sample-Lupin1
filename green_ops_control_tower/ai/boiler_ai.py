@@ -1,28 +1,14 @@
-def recommend_boiler_actions(df):
-    recs = []
+from sklearn.ensemble import GradientBoostingRegressor
 
-    if df["o2_pct"].mean() > 6:
-        recs.append({
-            "action": "Reduce excess air",
-            "lever": "O₂ trim optimization",
-            "expected_eff_gain_pct": 2.5,
-            "confidence": "High"
-        })
+def boiler_ai(df, fuel_cost=6.5, ef=1.8):
+    X = df[["load_pct","o2_pct","stack_temp_c"]]
+    y = df["boiler_eff"]
 
-    if df["stack_temp_c"].mean() > 210:
-        recs.append({
-            "action": "Improve heat recovery",
-            "lever": "Economizer cleaning / upgrade",
-            "expected_eff_gain_pct": 1.8,
-            "confidence": "Medium"
-        })
+    model = GradientBoostingRegressor(loss="quantile", alpha=0.8)
+    model.fit(X, y)
 
-    if (df["load_pct"] < 60).mean() > 0.3:
-        recs.append({
-            "action": "Avoid low-load cycling",
-            "lever": "Load consolidation / scheduling",
-            "expected_eff_gain_pct": 1.2,
-            "confidence": "High"
-        })
+    best = model.predict(X)
+    gap = best - y
 
-    return recs
+    savings = (gap.clip(lower=0) / y) * df["fuel_kgph"]
+    return savings.sum() * fuel_cost * 365, savings.sum() * ef * 365 / 1000
