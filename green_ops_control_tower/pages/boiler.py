@@ -1,18 +1,20 @@
 import streamlit as st
-from diagnostics.boiler_diagnostics import compute_boiler_losses
-from ai.boiler_ai import recommend_boiler_actions
+from diagnostics.boiler import boiler_efficiency, boiler_losses
+from ai.boiler_ai import boiler_ai
 
-st.title("🔥 Boiler Performance & Diagnostics")
+def render(df):
+    st.title("🔥 Boiler Diagnostics")
 
-df = st.session_state["plant_data"]
+    df["boiler_eff"] = boiler_efficiency(df)
 
-st.subheader("Boiler Efficiency Trend")
-st.line_chart(df["boiler_efficiency_pct"])
+    st.line_chart(df.set_index("timestamp")["boiler_eff"])
 
-st.subheader("Loss Diagnostics")
-loss_df = compute_boiler_losses(df)
-st.area_chart(loss_df)
+    st.subheader("Loss Diagnostics")
+    st.area_chart(boiler_losses(df))
 
-st.subheader("AI-Recommended Improvement Options")
-recs = recommend_boiler_actions(df)
-st.table(recs)
+    rs, co2 = boiler_ai(df)
+    st.metric("Savings Potential (₹ Cr)", rs / 1e7)
+    st.metric("CO₂ Reduction (t/y)", co2)
+
+    if st.button("⬅ Back"):
+        st.session_state.page = "Plant"
