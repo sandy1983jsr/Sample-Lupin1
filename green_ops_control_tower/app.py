@@ -1,17 +1,10 @@
-import sys
-import os
-
-sys.path.insert(
-    0,
-    os.path.dirname(os.path.abspath(__file__))
-)
 
 # app.py
 import streamlit as st
-from core.session import init_session
-from data.dummy_data import generate_dummy_data
-from diagnostics.boiler import boiler_efficiency
-from pages import landing, plant, boiler, dryer
+from green_ops_control_tower.core.session import init_session
+from green_ops_control_tower.data.dummy_data import generate_dummy_data
+from green_ops_control_tower.diagnostics.boiler import boiler_efficiency
+from green_ops_control_tower.pages import landing, plant, boiler, dryer
 
 st.set_page_config(layout="wide")
 
