@@ -1,7 +1,7 @@
 
 # app.py
 import streamlit as st
-from green_ops_control_tower.core.session import init_session
+from core.session import init_session
 from green_ops_control_tower.data.dummy_data import generate_dummy_data
 from green_ops_control_tower.diagnostics.boiler import boiler_efficiency
 from green_ops_control_tower.pages import landing, plant, boiler, dryer
